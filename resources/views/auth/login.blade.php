@@ -66,17 +66,17 @@
                         </div>
                     </form>
                     <div class="d-grid gap-2">
-                        <a href="{{ route('login.facebook') }}" class="btn btn-primary btn-block text-white">
+                        <a href="{{ url('/auth/facebook/redirect') }}" class="btn btn-primary btn-block text-white">
                             <i class="fa-brands fa-square-facebook"></i>
                             Login with Facebook
                         </a>
 
-                        <a href="{{ route('login.twitter') }}" class="btn btn-info text-white btn-block">
+                        <a href="{{ url('/auth/twitter/redirect') }}" class="btn btn-info text-white btn-block">
                             <i class="fa-brands fa-square-twitter"></i>
                             Login with Twitter
                         </a>
 
-                        <a href="{{ route('login.google') }}" class="btn btn-danger btn-block">
+                        <a href="{{ url('/auth/google/redirect') }}" class="btn btn-danger btn-block">
                             <i class="fa-brands fa-square-google-plus"></i>
                             Login with Google+
                         </a>

@@ -9,112 +9,59 @@ use Illuminate\Support\Facades\Auth;
 
 class SocialiteController extends Controller
 {
-    public function redirectToProvider()
+
+    private $availableDrivers = [
+        'facebook',
+        'twitter',
+        'google'
+    ];
+
+    public function redirectToProvider($provider)
     {
-        return Socialite::driver('facebook')->redirect();
-    }
-
-    public function handleProviderCallback()
-    {
-        $userFacebook = Socialite::driver('facebook')->user();
-
-        $user = User::where('email', $userFacebook->getEmail())->first();
-
-        if(!$user)
-        {
-            $user = User::create([
-                'name' => $userFacebook->getName(),
-                'email' => $userFacebook->getEmail(),
-                'password' => '',
-                'facebook_id' => $userFacebook->getId(),
-                'avatar'=> $userFacebook->getAvatar(),
-                'nickname' => $userFacebook->getNickname()
-            ]);
+        // check if the driver exists
+        if(!in_array($provider, $this->availableDrivers)){
+            return redirect()->route('login');
         }
-
-        // $user->getId();
-        // $user->getNickname();
-        // $user->getName();
-        // $user->getEmail();
-        // $user->getAvatar();
-
-        // auth -> login user after facebook login
-        Auth::login($user);
-
-        return redirect()->route('home');
-    }
-
-    public function redirectToTwitterProvider()
-    {
-        return Socialite::driver('twitter')->redirect();
-    }
-
-    public function handleTwitterProviderCallback()
-    {
-        $userTwitter = Socialite::driver('twitter')->user();
-
-        if($userTwitter->getEmail()){
-            $user = User::where('email', $userTwitter->getEmail())->first();
-        }else{
-            $user = User::where('twitter_id', $userTwitter->getId())->first();
-        }
-
         
+        return Socialite::driver($provider)->redirect();
+    }
+
+    public function handleProviderCallback($provider)
+    {
+        // check if the driver exists
+        if(!in_array($provider, $this->availableDrivers)){
+            return redirect()->route('login');
+        }
+        
+        $userOAuth = Socialite::driver($provider)->user();
+
+        if($userOAuth->getEmail()){
+            $user = User::where('email', $userOAuth->getEmail())->first();
+        }else{
+            $user = User::where($provider.'_id', $userOAuth->getId())->first();
+        }
+
+        // $provider.'_id' = facebook_id or twitter_id or google_id
 
         if($user)
         {
             //update user information
             $user->update([
-                'name' => $userTwitter->getName(),
-                'twitter_id' => $userTwitter->getId(),
-                'avatar'=> $userTwitter->getAvatar(),
-                'nickname' => $userTwitter->getNickname()
+                'name' => $userOAuth->getName(),
+                $provider.'_id' => $userOAuth->getId(),
+                'avatar'=> $userOAuth->getAvatar(),
+                'nickname' => $userOAuth->getNickname()
             ]);
 
         }else{
             // create new user based on the received data
             $user = User::create([
-                'name' => $userTwitter->getName(),
-                'email' => $userTwitter->getEmail(),
+                'name' => $userOAuth->getName(),
+                'email' => $userOAuth->getEmail(),
                 'password' => '',
-                'twitter_id' => $userTwitter->getId(),
-                'avatar'=> $userTwitter->getAvatar(),
-                'nickname' => $userTwitter->getNickname()
-            ]);
-        }
-
-        // $user->getId();
-        // $user->getNickname();
-        // $user->getName();
-        // $user->getEmail();
-        // $user->getAvatar();
-
-        // auth -> login user after facebook login
-        Auth::login($user);
-
-        return redirect()->route('home');
-    }
-
-    public function redirectToGoogleProvider()
-    {
-        return Socialite::driver('google')->redirect();
-    }
-
-    public function handleGoogleProviderCallback()
-    {
-        $userGoogle = Socialite::driver('google')->user();
-
-        $user = User::where('email', $userGoogle->getEmail())->first();
-
-        if(!$user)
-        {
-            $user = User::create([
-                'name' => $userGoogle->getName(),
-                'email' => $userGoogle->getEmail(),
-                'password' => '',
-                'google_plus_id' => $userGoogle->getId(),
-                'avatar'=> $userGoogle->getAvatar(),
-                'nickname' => $userGoogle->getNickname()
+                $provider.'_id' => $userOAuth->getId(),
+                'avatar'=> $userOAuth->getAvatar(),
+                'nickname' => $userOAuth->getNickname()
             ]);
         }
 
@@ -123,4 +70,5 @@ class SocialiteController extends Controller
 
         return redirect()->route('home');
     }
+
 }

@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->string('google_id')->nullable();
             $table->string('avatar')->nullable();
             $table->string('nickname')->nullable();
+            $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Location;
+use App\Models\Item;
+use App\Models\Price;
+
 class HomeController extends Controller
 {
     /**
@@ -23,6 +27,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $locations = Location::all();
+        $items = Item::all();
+        $prices = Price::where('user_id', auth()->id())->orderBy('created_at', 'desc')->take(10)->get();
+        return view('home', compact('locations', 'items', 'prices'));
     }
 }
